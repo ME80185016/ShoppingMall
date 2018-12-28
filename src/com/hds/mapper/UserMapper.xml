@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hds.mapper.UserMapper">
+		<!-- 普通用户的注册 -->
+		<insert id="insertUser" parameterType="ShoppingRole">
+			insert into shopping_role values (shopping_role_seq.nextval,#{role_name},#{role_pwd},'2','upload/defaultHead.png',#{role_tel,jdbcType=VARCHAR})
+		</insert>
+		<!-- 根据用户名查询用户信息 -->
+		<select id="queryUserByName" parameterType="String" resultType="ShoppingRole">
+			select * from shopping_role where role_name=#{role_name} and role_type='2'
+		</select>
+		<!-- 根据手机号查询用户信息 -->
+		<select id="queryUserByTel" parameterType="String" resultType="ShoppingRole">
+			select * from shopping_role where role_tel=#{role_tel,jdbcType=VARCHAR} and role_type='2'
+		</select>
+		<!-- 用户浏览商品，查找全部商品,分页查询，每页显示四个 -->
+		<select id="queryGoods" parameterType="int" resultType="ShoppingGood">
+			select t.* from(select ROWNUM RN,shopping_good.* from shopping_good) t where RN between (#{page}-1)*4+1 and #{page}*4
+		</select>
+		<!-- 根据商品id查找商品 -->
+		<select id="queryGoodById" parameterType="int" resultType="ShoppingGood">
+			select * from shopping_good where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品价格 -->
+		<select id="queryPriceById" parameterType="int" resultType="int">
+			select price_num from good_price where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找图片路径 -->
+		<select id="queryImageRouteById" parameterType="int" resultType="String">
+			select image_route from good_image where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品销量 -->
+		<select id="querySaleById" parameterType="int" resultType="int">
+			select sale_num from good_sale where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品余量 -->
+		<select id="queryMarginById" parameterType="int" resultType="int">
+			select margin_num from good_margin where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品属性 -->
+		<select id="queryPropertiesById" parameterType="int" resultType="GoodProperties">
+			select * from good_properties where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品评价 -->
+		<select id="queryAssessById" parameterType="int" resultType="GoodAssess">
+			select * from good_assess where good_id=#{good_id}
+		</select>
+		<!-- 查找全部角色名，用户注册时防止用户名重复 -->
+		<select id="queryRoleNames" resultType="String">
+			select role_name from shopping_role
+		</select>
+		<!-- 查找商品数量，用于分页-->
+		<select id="queryGoodCount" resultType="int">
+			select count(good_id) from shopping_good
+		</select>
+		<!-- 用户购买商品，向订单表里添加数据-->
+		<insert id="insertOrder" parameterType="ShoppingOrder">
+			insert into shopping_order values(shopping_order_seq.nextval,#{user_id},#{store_id},#{order_time},#{order_money},#{order_state},#{user_name},#{store_name},#{pay_type,jdbcType=VARCHAR})
+		</insert>
+		<!-- 取得当前添加的订单id -->
+		<select id="selectOrderIdCurrval" resultType="int">
+			select order_id from shopping_order where <![CDATA[ROWNUM<2]]> order by order_id DESC
+		</select>
+		<!-- 用户购买商品，向订单详情表里添加数据 -->
+		<insert id="insertOrderline" parameterType="ShoppingOrderline">
+			insert into shopping_orderline values(#{order_id},#{address_id,jdbcType=INTEGER},#{good_id},#{order_state},#{good_num},#{good_price},#{image_route},#{address_name,jdbcType=VARCHAR},#{good_name,jdbcType=VARCHAR})
+		</insert>
+		<!-- 更改商品余量，当用户加入购物车或购买后商品余量-购买数量，当店铺进货后商品余量进行相应更改 -->
+		<update id="updateGoodMargin" parameterType="int">
+			update good_margin set margin_num=#{margin_num} where good_id=#{good_id}
+		</update>
+		<!-- 更改商品销量，当用户加入购物车或购买后商品销量+购买数量 -->
+		<update id="updateGoodSale" parameterType="int">
+			update good_sale set sale_num=#{sale_num} where good_id=#{good_id}
+		</update>
+		<!-- 用户收藏商品，向collect_good表中添加数据-->
+		<insert id="insertCollectGood" parameterType="CollectGood">
+			insert into collect_good values(collect_good_seq.nextval,#{user_id},#{good_id},#{store_id},#{good_name},#{image_route})
+		</insert>
+		<!-- 根据用户id查询其订单 -->
+		<select id="queryOrderByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id}
+		</select>
+		<!-- 根据用户id查询其购物车 -->
+		<select id="queryShoppingCarByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='0'
+		</select>
+		<!-- 根据用户id查询待发货 -->
+		<select id="queryWaitDeliverGoodByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='1'
+		</select>
+		<!-- 根据用户id查询待收货 -->
+		<select id="queryWaitReceiptGoodByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='2'
+		</select>
+		<!-- 根据用户id查询待评价 -->
+		<select id="queryWaitAssessGoodByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='3'
+		</select>
+		<!-- 根据用户id查询待退款 -->
+		<select id="queryWaitBackMoneyByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='4'
+		</select>
+		<!-- 根据用户id查询已退款 -->
+		<select id="queryBackMoneyByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='5'
+		</select>
+		<!-- 根据用户id查询已完成 -->
+		<select id="queryOverOrderByUserId" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and order_state='Y'
+		</select>
+		<!-- 根据用户id查询其收藏商品 -->
+		<select id="queryCollectGoodByUserId" resultType="CollectGood">
+			select * from collect_good where user_id=#{user_id}
+		</select>
+		<!-- 根据地址id查询地址 -->
+		<select id="queryAddressById" resultType="RoleAddress">
+			select * from role_address where address_id=#{address_id}
+		</select>
+		<!-- 用户或店铺添加地址 -->
+		<insert id="insertUserAddress" parameterType="RoleAddress">
+			insert into role_address values(role_address_seq.nextval,#{address_name},#{address_code},#{linkman_name},#{linkman_tel},#{user_id},null)
+		</insert>
+		<!-- 根据用户id查询地址 -->
+		<select id="queryAddressByUserId" resultType="RoleAddress">
+			select * from role_address where user_id=#{user_id}
+		</select>
+		<!-- 删除信息 -->
+		<delete id="deleteUserById" parameterType="int">
+			delete from shopping_role where role_id=#{role_id}
+		</delete>
+		<!-- 更新自己账号信息 -->
+		<update id="updateUserById" parameterType="ShoppingRole">
+			update shopping_role set role_name=#{role_name},role_pwd=#{role_pwd},role_head=#{role_head},role_tel=#{role_tel} where role_id=#{role_id}
+		</update>
+		<!-- 更新自己地址信息 -->
+		<update id="updateAddressById" parameterType="RoleAddress">
+			update role_address set address_name=#{address_name},address_code=#{address_code},linkman_name=#{linkman_name},linkman_tel=#{linkman_tel} where address_id=#{address_id}
+		</update>
+		<!-- 删除收藏商品 -->
+		<delete id="deleteCollectGoodById" parameterType="int">
+			delete from collect_good where collect_id=#{collect_id}
+		</delete>
+		<!-- 用户收藏店铺，向collect_store表中添加数据-->
+		<insert id="insertCollectStore" parameterType="CollectStore">
+			insert into collect_store values(collect_store_seq.nextval,#{user_id},#{store_id},#{store_name})
+		</insert>
+		<!-- 根据用户id查询其收藏店铺 -->
+		<select id="queryCollectStoreByUserId" resultType="CollectStore">
+			select * from collect_store where user_id=#{user_id}
+		</select>
+		<!-- 根据角色id查询角色对象 -->
+		<select id="queryRoleById" resultType="ShoppingRole">
+			select * from shopping_role where role_id=#{role_id}
+		</select>
+		<!-- 删除收藏店铺 -->
+		<delete id="deleteCollectStoreById" parameterType="int">
+			delete from collect_store where collect_id=#{collect_id}
+		</delete>
+		<!-- 删除地址 -->
+		<delete id="deleteAddressById" parameterType="int">
+			delete from role_address where address_id=#{address_id}
+		</delete>
+		<!-- 删除订单详情 -->
+		<delete id="deleteOrderlineById" parameterType="int">
+			delete from shopping_orderline where order_id=#{order_id}
+		</delete>
+		<!-- 删除订单 -->
+		<delete id="deleteOrderById" parameterType="int">
+			delete from shopping_order where order_id=#{order_id}
+		</delete>
+		<!-- 用户评价商品，向good_assess表中添加数据-->
+		<insert id="insertGoodAssess" parameterType="GoodAssess">
+			insert into good_assess values(good_assess_seq.nextval,#{user_id,jdbcType=INTEGER},#{good_id,jdbcType=INTEGER},#{assess_content,jdbcType=VARCHAR},#{assess_time,jdbcType=VARCHAR},#{good_name,jdbcType=VARCHAR},#{image_route,jdbcType=VARCHAR},#{user_name,jdbcType=VARCHAR})
+		</insert>
+		<!-- 根据用户id查询其评价 -->
+		<select id="queryGoodAssessByUserId" resultType="GoodAssess">
+			select * from good_assess where user_id=#{user_id}
+		</select>
+		<!-- 根据商品id查询其评价 -->
+		<select id="queryGoodAssessByStoreId" resultType="GoodAssess">
+			select * from good_assess where good_id=#{good_id}
+		</select>
+		<!-- 删除评价 -->
+		<delete id="deleteGoodAssessById" parameterType="int">
+			delete from good_assess where assess_id=#{assess_id}
+		</delete>
+		<!-- 根据订单id查询订单 -->
+		<select id="queryOrderById" parameterType="int" resultType="ShoppingOrder">
+			select * from shopping_order where order_id=#{order_id}
+		</select>
+		<!-- 根据订单id查询订单详情 -->
+		<select id="queryOrderlineById" parameterType="int" resultType="ShoppingOrderline">
+			select * from shopping_orderline where order_id=#{order_id}
+		</select>
+		<!-- 根据订单id更新订单信息 -->
+		<update id="updateOrderById" parameterType="ShoppingOrder">
+			update shopping_order set order_time=#{order_time},order_state=#{order_state} where order_id=#{order_id}
+		</update>
+		<!-- 根据订单id更新订单详情信息 -->
+		<update id="updateOrderlineById" parameterType="ShoppingOrderline">
+			 update shopping_orderline set address_id=#{address_id,jdbcType=INTEGER},order_state=#{order_state},address_name=#{address_name,jdbcType=VARCHAR} where order_id=#{order_id}
+		</update>
+		<!-- 根据商品名模糊查找商品 -->
+		<select id="queryGoodByName" parameterType="String" resultType="ShoppingGood">
+			select * from shopping_good where good_name like '%${good_name}%'
+		</select>
+		<!-- 用户浏览店铺，查找全部店铺,分页查询，每页显示四个 -->
+		<select id="queryStores" parameterType="int" resultType="ShoppingRole">
+			select t.* from(select rownum rn,shopping_role.* from shopping_role where role_type='1') t where rn between (#{page}-1)*4+1 and #{page}*4
+		</select>
+		<!-- 根据店铺id查找店铺 -->
+		<select id="queryStoreInfoById" parameterType="int" resultType="StoreInfo">
+			select * from store_info where store_id=#{store_id}
+		</select>
+		<!-- 查找店铺数量，用于分页-->
+		<select id="queryStoreCount" resultType="int">
+			select count(role_id) from shopping_role where role_type='1'
+		</select>
+		<!-- 根据店铺id查询地址 -->
+		<select id="queryAddressByStoreId" resultType="RoleAddress">
+			select * from role_address where store_id=#{store_id}
+		</select>
+		<!-- 浏览某一家店铺的商品 -->
+		<select id="queryStoreGoods" parameterType="int" resultType="ShoppingGood">
+			select * from shopping_good where store_id=#{store_id}
+		</select>
+		<!-- 查询当前用户要买的这个订单-->
+		<select id="queryCurrvalOrder" parameterType="int" resultType="ShoppingOrder">
+			select * from shopping_order where user_id=#{user_id} and <![CDATA[rownum<2]]> order by order_id desc
+		</select>
+		<!-- 根据订单id将订单状态置为待评价，即确认收货 -->
+		<update id="updateOrderStateReceiptGood" parameterType="int">
+			update shopping_order set order_state='3' where order_id=#{order_id}
+		</update>
+		<!-- 根据订单id将订单详情状态置为待评价，即确认收货 -->
+		<update id="updateOrderlineStateReceiptGood" parameterType="int">
+			update shopping_orderline set order_state='3' where order_id=#{order_id}
+		</update>
+		
+	</mapper>  

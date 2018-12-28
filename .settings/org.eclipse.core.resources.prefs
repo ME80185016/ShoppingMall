@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//WebContent/page/roleLogin.jsp=UTF-8
+encoding//WebContent/page/user/userRegister.jsp=UTF-8
+encoding//WebContent/style.css=UTF-8
+encoding//src/com/hds/entity/PaySaPi.java=UTF-8
+encoding//src/com/hds/payutil/MD5Util.java=UTF-8
+encoding//src/com/hds/payutil/PayUtil.java=UTF-8
+encoding//src/com/hds/payutil/StringUtils.java=UTF-8

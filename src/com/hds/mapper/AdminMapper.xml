@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.hds.mapper.AdminMapper">
+		<!-- 根据用户名查询用户信息 -->
+		<select id="queryAdminByName" parameterType="String" resultType="ShoppingRole">
+			select * from shopping_role where role_name=#{role_name} and role_type='0'
+		</select>
+		<!-- 根据手机号查询用户信息 -->
+		<select id="queryAdminByTel" parameterType="String" resultType="ShoppingRole">
+			select * from shopping_role where role_tel=#{role_tel,jdbcType=VARCHAR} and role_type='0'
+		</select>
+		<!-- 根据角色id查询角色 -->
+		<select id="queryRoleById" parameterType="int" resultType="ShoppingRole">
+			select * from shopping_role where role_id=#{role_id}
+		</select>
+		<!-- 根据角色名查询角色 -->
+		<select id="queryRoleByName" parameterType="String" resultType="ShoppingRole">
+			select * from shopping_role where role_name=#{role_name,jdbcType=VARCHAR}
+		</select>
+		<!-- 删除信息 -->
+		<delete id="deleteRoleById" parameterType="int">
+			delete from shopping_role where role_id=#{role_id}
+		</delete>
+		<!-- 管理员浏览商品 -->
+		<select id="queryGoods" resultType="ShoppingGood">
+			select * from shopping_good
+		</select>
+		<!-- 根据商品id查找商品 -->
+		<select id="queryGoodById" parameterType="int" resultType="ShoppingGood">
+			select * from shopping_good where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品价格 -->
+		<select id="queryPriceById" parameterType="int" resultType="int">
+			select price_num from good_price where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找图片路径 -->
+		<select id="queryImageRouteById" parameterType="int" resultType="String">
+			select image_route from good_image where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品销量 -->
+		<select id="querySaleById" parameterType="int" resultType="int">
+			select sale_num from good_sale where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品余量 -->
+		<select id="queryMarginById" parameterType="int" resultType="int">
+			select margin_num from good_margin where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品属性 -->
+		<select id="queryPropertiesById" parameterType="int" resultType="GoodProperties">
+			select * from good_properties where good_id=#{good_id}
+		</select>
+		<!-- 根据商品id查找商品评价 -->
+		<select id="queryAssessById" parameterType="int" resultType="GoodAssess">
+			select * from good_assess where good_id=#{good_id}
+		</select>
+		<!-- 根据商品名查找商品 -->
+		<select id="queryGoodByName" parameterType="String" resultType="ShoppingGood">
+			select * from shopping_good where good_name like '%${_parameter}%'
+		</select>
+		<!-- 店铺根据商品id下架商品 -->
+		<delete id="deleteGoodById" parameterType="int">
+			delete from shopping_good where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除商品价格 -->
+		<delete id="deletePriceById" parameterType="int">
+			delete from good_price where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除图片路径 -->
+		<delete id="deleteImageRouteById" parameterType="int">
+			delete from good_image where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除商品销量 -->
+		<delete id="deleteSaleById" parameterType="int">
+			delete from good_sale where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除商品余量 -->
+		<delete id="deleteMarginById" parameterType="int">
+			delete from good_margin where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除商品属性 -->
+		<delete id="deletePropertiesById" parameterType="int">
+			delete from good_properties where good_id=#{good_id}
+		</delete>
+		<!-- 根据商品id删除商品评价 -->
+		<delete id="deleteAssessById" parameterType="int">
+			delete from good_assess where good_id=#{good_id}
+		</delete>
+		<!-- 管理员根据店铺id更改店铺状态 -->
+		<update id="updateStoreStateById" >
+			update store_info set store_state=#{store_state} where store_id=#{store_id}
+		</update>
+		<!-- 删除店铺信息，拒绝开店 -->
+		<delete id="deleteStoreInfoById" parameterType="int">
+			delete from store_info where store_id=#{store_id}
+		</delete>
+		<!-- 用户浏览店铺-->
+		<select id="queryStores" resultType="ShoppingRole">
+			select * from shopping_role where role_type='1'
+		</select>
+		<!-- 根据店铺id查找店铺 -->
+		<select id="queryStoreInfoById" parameterType="int" resultType="StoreInfo">
+			select * from store_info where store_id=#{store_id}
+		</select>
+		<!-- 根据店铺id查询地址 -->
+		<select id="queryAddressByStoreId" resultType="RoleAddress">
+			select * from role_address where store_id=#{store_id}
+		</select>
+		<!-- 浏览某一家店铺的商品 -->
+		<select id="queryStoreGoods" parameterType="int" resultType="ShoppingGood">
+			select * from shopping_good where store_id=#{store_id}
+		</select>
+		<!-- 查看申请开店的店铺信息 -->
+		<select id="queryApplyStoreInfo" resultType="StoreInfo">
+			select * from store_info where store_state='0'
+		</select>
+	</mapper>  
