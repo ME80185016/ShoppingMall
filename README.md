@@ -1,3 +1,3 @@
 # ShoppingMall
-我的毕业设计
+设计
 hds
